@@ -1,0 +1,148 @@
+# Oppgave 2
+
+library(tidyverse)
+
+m <- 1e5
+n <- 100
+data <- array(sample(c(0,1), m*n, mlace=TRUE), c(m,n))
+
+data %>%
+  as_tibble() %>%
+  mutate(prob = map_dbl(1:n, ~ sum(.x[-n] & .x[-1]) / sum(.x[-n]))) %>%
+  summarize(mean_prob = mean(prob))
+
+
+# Oppgave 3
+
+set.seed(123) 
+
+m <- 1e5
+n <- 100
+data <- matrix(sample(c(0,1), m*n, mlace=TRUE), nrow=m, ncol=n)
+
+intervals <- seq(0, 99, by=1)
+
+mean_probs <- sapply(intervals, function(j) {
+  probs <- numeric(m)
+  for (i in 1:m) {
+    kron <- data[i,1:(n-1)][1:j]==1
+    kron1 <- data[i,2:n][1:j]==1
+    n_kron <- sum(kron)
+    if (n_kron > 0) {
+      probs[i] <- sum(kron & kron1, na.rm=TRUE)/n_kron
+    }
+  }
+  mean(probs, na.rm=TRUE)
+})
+
+mean50 <- mean_probs[50]
+mean10 <- mean_probs[10]
+mean5 <- mean_probs[5]
+
+
+lowest <- match(min(mean_probs, na.rm = TRUE), mean_probs)
+
+
+# Oppgave 4
+
+df <- data.frame(num_tosses = intervals + 1, prob_of_two_heads = mean_probs)
+
+ggplot(df, aes(x = num_tosses, y = prob_of_two_heads)) +
+  geom_line() +
+  geom_hline(yintercept = mean50, linetype = "dashed", color = "blue") +
+  geom_hline(yintercept = mean10, linetype = "dashed", color = "green") +
+  geom_hline(yintercept = mean5, linetype = "dashed", color = "red") +
+  labs(x = "Antall kast", y = "Sannsynlighet for kron to ganger på rad",
+       title = "Simulering av 100 000 kast")
+  
+
+# Oppgave 5
+
+# a)
+
+set.seed(123)
+m <- 1e6
+n <- 100
+data <- matrix(sample(c(0,1), m*n, mlace=TRUE), ncol=n)
+prob <- m(NA, m)
+intervals <- seq(0, 99, by=1)
+mean_probs <- numeric(length(intervals))
+for (j in 1:length(intervals)) {
+  for (i in 1:m){
+    kron <- data[i,1:(n-1)][1:intervals[j]]==1
+    kron1 <- data[i,2:n][1:intervals[j]]==1
+    n_kron <- sum(kron)
+    if (n_kron > 0) {
+      prob[i] <- sum(kron & kron1, na.rm=TRUE)/n_kron 
+    }
+  }
+  mean_probs[j] <- mean(prob, na.rm=TRUE)
+}
+table1e6 <- data.frame(pulls = intervals+1, success = mean_probs)
+ggplot(table1e6, aes(pulls, success)) +
+  geom_line() +
+  geom_hline(yintercept = mean50, linetype = "dashed", color = "blue") +
+  geom_hline(yintercept = mean10, linetype = "dashed", color = "green") +
+  geom_hline(yintercept = mean5, linetype = "dashed", color = "red") +
+  labs(x = "Antall kast", y = "Forventet resultat",
+       title = "Simulering av 1000 000 kast")
+  
+
+# b)
+
+set.seed(123)
+m <- 1e4
+n <- 100
+data <- matrix(sample(c(0,1), m*n, mlace=TRUE), ncol=n)
+prob <- m(NA, m)
+intervals <- seq(0, 99, by=1)
+mean_probs <- numeric(length(intervals))
+for (j in 1:length(intervals)) {
+  for (i in 1:m){
+    kron <- data[i,1:(n-1)][1:intervals[j]]==1
+    kron1 <- data[i,2:n][1:intervals[j]]==1
+    n_kron <- sum(kron)
+    if (n_kron > 0) {
+      prob[i] <- sum(kron & kron1, na.rm=TRUE)/n_kron 
+    }
+  }
+  mean_probs[j] <- mean(prob, na.rm=TRUE)
+}
+table1e4 <- data.frame(pulls = intervals+1, success = mean_probs)
+ggplot(table1e4, aes(pulls, success)) +
+  geom_line() +
+  geom_hline(yintercept = mean50, linetype = "dashed", color = "blue") +
+  geom_hline(yintercept = mean10, linetype = "dashed", color = "green") +
+  geom_hline(yintercept = mean5, linetype = "dashed", color = "red") +
+  labs(x = "Antall kast", y = "Forventet resultat",
+       title = "Simulering av 100 000 kast")
+  
+
+# c)
+
+set.seed(123)
+m <- 100
+n <- 100
+data <- matrix(sample(c(0,1), m*n, mlace=TRUE), ncol=n)
+prob <- m(NA, m)
+intervals <- seq(0, 99, by=1)
+mean_probs <- numeric(length(intervals))
+for (j in 1:length(intervals)) {
+  for (i in 1:m){
+    kron <- data[i,1:(n-1)][1:intervals[j]]==1
+    kron1 <- data[i,2:n][1:intervals[j]]==1
+    n_kron <- sum(kron)
+    if (n_kron > 0) {
+      prob[i] <- sum(kron & kron1, na.rm=TRUE)/n_kron 
+    }
+  }
+  mean_probs[j] <- mean(prob, na.rm=TRUE)
+}
+table100 <- data.frame(pulls = intervals+1, success = mean_probs)
+ggplot(table100, aes(pulls, success)) +
+  geom_line() +
+  geom_hline(yintercept = mean50, linetype = "dashed", color = "blue") +
+  geom_hline(yintercept = mean10, linetype = "dashed", color = "green") +
+  geom_hline(yintercept = mean5, linetype = "dashed", color = "red") +
+  labs(x = "Antall kast", y = "Forventet resultat",
+       title = "Simulering av 100 kast")
